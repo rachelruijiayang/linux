@@ -301,7 +301,7 @@ asmlinkage long sys_sched_getattr(pid_t pid,
 					unsigned int flags);
 asmlinkage long sys_sched_setaffinity(pid_t pid, unsigned int len,
 					unsigned long __user *user_mask_ptr);
-ASmlinkage long sys_sched_getaffinity(pid_t pid, unsigned int len,
+asmlinkage long sys_sched_getaffinity(pid_t pid, unsigned int len,
 					unsigned long __user *user_mask_ptr);
 asmlinkage long sys_sched_yield(void);
 asmlinkage long sys_sched_get_priority_max(int policy);
