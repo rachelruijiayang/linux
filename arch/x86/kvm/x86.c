@@ -6152,11 +6152,12 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 		ret = 0;
 		break;
 	case KVM_HC_VCPU_INFO:
-		trace_printk("in case for KVM_HC_VCPU_INFO");	
-		printk("in case for KVM_HC_VCPU_INFO");
+		trace_printk("in case for KVM_HC_VCPU_INFO\n");	
+//		printk("in case for KVM_HC_VCPU_INFO\n");
 		ret = 0;
 		break;
 	default:
+		trace_printk("hypercall #%u matched none of the cases\n", nr);
 		ret = -KVM_ENOSYS;
 		break;
 	}

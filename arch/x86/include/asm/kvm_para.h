@@ -43,10 +43,13 @@ static inline long kvm_hypercall0(unsigned int nr)
 static inline long kvm_hypercall1(unsigned int nr, unsigned long p1)
 {
 	long ret;
+	trace_printk("just entered kvm_hypercall1\n");
+	trace_printk("nr=%u; p1=%lu\n", nr, p1);
 	asm volatile(KVM_HYPERCALL
 		     : "=a"(ret)
 		     : "a"(nr), "b"(p1)
 		     : "memory");
+	trace_printk("returning from kvm_hypercall1\n");
 	return ret;
 }
 
