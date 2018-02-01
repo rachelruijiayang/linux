@@ -1200,7 +1200,9 @@ int kvm_hv_hypercall(struct kvm_vcpu *vcpu)
 	u64 param, ingpa, outgpa, ret;
 	uint16_t code, rep_idx, rep_cnt, res = HV_STATUS_SUCCESS, rep_done = 0;
 	bool fast, longmode;
-
+	
+	trace_printk("in kvm_hv_hypercall (arch/x86/kvm/hyperv.c)\n");
+	
 	/*
 	 * hypercall generates UD from non zero cpl and real mode
 	 * per HYPER-V spec

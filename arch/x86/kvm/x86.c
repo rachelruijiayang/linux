@@ -6115,10 +6115,13 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 {
 	unsigned long nr, a0, a1, a2, a3, ret;
 	int op_64_bit, r;
+	
+	trace_printk("entered kvm_emulate_hypercall\n");
 
 	r = kvm_skip_emulated_instruction(vcpu);
 
 	if (kvm_hv_hypercall_enabled(vcpu->kvm))
+		trace_printk("if (kvm_hv_hypercall_enabled(vcpu->kvm)) is true; calling kvm_hv_hypercall(vcpu)\n");
 		return kvm_hv_hypercall(vcpu);
 
 	nr = kvm_register_read(vcpu, VCPU_REGS_RAX);
@@ -6127,7 +6130,9 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 	a2 = kvm_register_read(vcpu, VCPU_REGS_RDX);
 	a3 = kvm_register_read(vcpu, VCPU_REGS_RSI);
 
+	trace_printk("about to call trace_printk with nr=%lu, a0=%u\n");
 	trace_kvm_hypercall(nr, a0, a1, a2, a3);
+	trace_printk("just called trace_kvm_hypercall\n");
 
 	op_64_bit = is_64_bit_mode(vcpu);
 	if (!op_64_bit) {
