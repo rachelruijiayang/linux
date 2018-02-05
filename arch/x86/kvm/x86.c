@@ -6087,6 +6087,60 @@ int kvm_emulate_halt(struct kvm_vcpu *vcpu)
 }
 EXPORT_SYMBOL_GPL(kvm_emulate_halt);
 
+/* 
+ * kvm_vcpu_info: trace_printk the following information:
+ * pid: the corresponding PID of the VCPU thread in KVM host
+ * gp_regs: the values of the general purpose registers for the virtual CPU
+ * num_exits: number of vm exits from the VCPU
+ */
+static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
+{
+	// If the vcpu_id passed in is not valid, return error code to the VM
+	struct kvm_vcpu *vcpu;
+	vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id);
+	if (!(vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id))) {
+		return -EINVAL;		
+	}
+	// pid
+	trace_printk("pid: %ld\n", (long)pid_nr(vcpu->pid));
+	// gp_regs
+	trace_printk("gp_regs:\n\
+		VCPU_REGS_RAX = %lu\n\
+		VCPU_REGS_RCX = %lu\n\
+		VCPU_REGS_RDX = %lu\n\
+		VCPU_REGS_RBX = %lu\n\
+		VCPU_REGS_RSP = %lu\n\
+		VCPU_REGS_RBP = %lu\n\
+		VCPU_REGS_RSI = %lu\n\
+		VCPU_REGS_RDI = %lu\n\
+		VCPU_REGS_R8 = %lu\n\
+		VCPU_REGS_R9 = %lu\n\
+		VCPU_REGS_R10 = %lu\n\
+		VCPU_REGS_R11 = %lu\n\
+		VCPU_REGS_R12 = %lu\n\
+		VCPU_REGS_R13 = %lu\n\
+		VCPU_REGS_R14 = %lu\n\
+		VCPU_REGS_R15 = %lu\n",\
+		kvm_register_read(vcpu, VCPU_REGS_RAX),\
+		kvm_register_read(vcpu, VCPU_REGS_RCX),\
+		kvm_register_read(vcpu, VCPU_REGS_RDX),\
+		kvm_register_read(vcpu, VCPU_REGS_RBX),\
+		kvm_register_read(vcpu, VCPU_REGS_RSP),\
+		kvm_register_read(vcpu, VCPU_REGS_RSI),\
+		kvm_register_read(vcpu, VCPU_REGS_RDI),\
+		kvm_register_read(vcpu, VCPU_REGS_R8),\
+		kvm_register_read(vcpu, VCPU_REGS_R9),\
+		kvm_register_read(vcpu, VCPU_REGS_R10),\
+		kvm_register_read(vcpu, VCPU_REGS_R11),\
+		kvm_register_read(vcpu, VCPU_REGS_R12),\
+		kvm_register_read(vcpu, VCPU_REGS_R13),\
+		kvm_register_read(vcpu, VCPU_REGS_R14),\
+		kvm_register_read(vcpu, VCPU_REGS_R15));
+	// num_exits
+	trace_printk("num_exits: %llu\n", (vcpu->stat).exits);
+	return 0;
+}
+
 /*
  * kvm_pv_kick_cpu_op:  Kick a vcpu.
  *
@@ -6121,7 +6175,6 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 	r = kvm_skip_emulated_instruction(vcpu);
 
 	if (kvm_hv_hypercall_enabled(vcpu->kvm)) {
-		trace_printk("if (kvm_hv_hypercall_enabled(vcpu->kvm)) is true; calling kvm_hv_hypercall(vcpu)\n");
 		return kvm_hv_hypercall(vcpu);
 	}
 
@@ -6131,7 +6184,7 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 	a2 = kvm_register_read(vcpu, VCPU_REGS_RDX);
 	a3 = kvm_register_read(vcpu, VCPU_REGS_RSI);
 
-	trace_printk("about to call trace_printk with nr=%lu, a0=%u\n");
+	trace_printk("about to call trace_printk with nr=%lu, a0=%lu\n",nr,a0);
 	trace_kvm_hypercall(nr, a0, a1, a2, a3);
 	trace_printk("just called trace_kvm_hypercall\n");
 
@@ -6159,11 +6212,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 		break;
 	case KVM_HC_VCPU_INFO:
 		trace_printk("in case for KVM_HC_VCPU_INFO\n");	
-//		printk("in case for KVM_HC_VCPU_INFO\n");
-		ret = 0;
+		ret = kvm_vcpu_info(vcpu->kvm, a0);
 		break;
 	default:
-		trace_printk("hypercall #%u matched none of the cases\n", nr);
+		trace_printk("hypercall %lu matched none of the cases\n", nr);
 		ret = -KVM_ENOSYS;
 		break;
 	}
