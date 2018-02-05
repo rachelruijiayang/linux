@@ -6120,9 +6120,10 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 
 	r = kvm_skip_emulated_instruction(vcpu);
 
-	if (kvm_hv_hypercall_enabled(vcpu->kvm))
+	if (kvm_hv_hypercall_enabled(vcpu->kvm)) {
 		trace_printk("if (kvm_hv_hypercall_enabled(vcpu->kvm)) is true; calling kvm_hv_hypercall(vcpu)\n");
 		return kvm_hv_hypercall(vcpu);
+	}
 
 	nr = kvm_register_read(vcpu, VCPU_REGS_RAX);
 	a0 = kvm_register_read(vcpu, VCPU_REGS_RBX);
