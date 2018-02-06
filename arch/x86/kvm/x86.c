@@ -6092,7 +6092,7 @@ EXPORT_SYMBOL_GPL(kvm_emulate_halt);
  * pid: the corresponding PID of the VCPU thread in KVM host
  * gp_regs: the values of the general purpose registers for the virtual CPU
  * num_exits: number of vm exits from the VCPU
-*/
+ */
 static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
 {
 	struct kvm_vcpu *vcpu;
