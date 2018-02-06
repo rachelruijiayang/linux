@@ -7,12 +7,9 @@
 #include<linux/cpumask.h>
 
 asmlinkage long sys_vcpu_info(void) {
-	// enumerate each of the online CPU
-	// for each cpu:
-	trace_printk("about to call kvm_hypercall1(KVM_HC_VCPU_INFO, 1)\n");
+	// call hypercall for each of the online CPU
 	int cpu;
 	for_each_online_cpu(cpu)
 		kvm_hypercall1(KVM_HC_VCPU_INFO, 1);
-	trace_printk("finished calling kvm_hypercall1(KVM_HC_VCPU_INFO, 1)\n");		// trace_printk the result
 	return 0;
 }

@@ -6095,10 +6095,13 @@ EXPORT_SYMBOL_GPL(kvm_emulate_halt);
  */
 static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
 {
-	// If the vcpu_id passed in is not valid, return error code to the VM
 	struct kvm_vcpu *vcpu;
+
+	trace_printk("\n###### vcpu %d ######\n", vcpu_id);
+	// If the vcpu_id passed in is not valid, return error code to the VM
 	vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id);
 	if (!(vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id))) {
+		trace_printk("%d: not a valid vcpu_id\n", vcpu_id);
 		return -EINVAL;		
 	}
 	// pid
@@ -6126,6 +6129,7 @@ static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
 		kvm_register_read(vcpu, VCPU_REGS_RDX),\
 		kvm_register_read(vcpu, VCPU_REGS_RBX),\
 		kvm_register_read(vcpu, VCPU_REGS_RSP),\
+		kvm_register_read(vcpu, VCPU_REGS_RBP),\
 		kvm_register_read(vcpu, VCPU_REGS_RSI),\
 		kvm_register_read(vcpu, VCPU_REGS_RDI),\
 		kvm_register_read(vcpu, VCPU_REGS_R8),\
@@ -6169,8 +6173,6 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 {
 	unsigned long nr, a0, a1, a2, a3, ret;
 	int op_64_bit, r;
-	
-	trace_printk("entered kvm_emulate_hypercall\n");
 
 	r = kvm_skip_emulated_instruction(vcpu);
 
@@ -6184,9 +6186,7 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 	a2 = kvm_register_read(vcpu, VCPU_REGS_RDX);
 	a3 = kvm_register_read(vcpu, VCPU_REGS_RSI);
 
-	trace_printk("about to call trace_printk with nr=%lu, a0=%lu\n",nr,a0);
 	trace_kvm_hypercall(nr, a0, a1, a2, a3);
-	trace_printk("just called trace_kvm_hypercall\n");
 
 	op_64_bit = is_64_bit_mode(vcpu);
 	if (!op_64_bit) {
@@ -6211,11 +6211,9 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 		ret = 0;
 		break;
 	case KVM_HC_VCPU_INFO:
-		trace_printk("in case for KVM_HC_VCPU_INFO\n");	
 		ret = kvm_vcpu_info(vcpu->kvm, a0);
 		break;
 	default:
-		trace_printk("hypercall %lu matched none of the cases\n", nr);
 		ret = -KVM_ENOSYS;
 		break;
 	}
