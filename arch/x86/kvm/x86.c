@@ -6087,12 +6087,12 @@ int kvm_emulate_halt(struct kvm_vcpu *vcpu)
 }
 EXPORT_SYMBOL_GPL(kvm_emulate_halt);
 
-/* 
+/*
  * kvm_vcpu_info: trace_printk the following information:
  * pid: the corresponding PID of the VCPU thread in KVM host
  * gp_regs: the values of the general purpose registers for the virtual CPU
  * num_exits: number of vm exits from the VCPU
- */
+*/
 static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
 {
 	struct kvm_vcpu *vcpu;
@@ -6100,45 +6100,45 @@ static int kvm_vcpu_info(struct kvm *kvm, int vcpu_id)
 	trace_printk("\n###### vcpu %d ######\n", vcpu_id);
 	// If the vcpu_id passed in is not valid, return error code to the VM
 	vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id);
-	if (!(vcpu = kvm_get_vcpu_by_id(kvm, vcpu_id))) {
+	if (!vcpu) {
 		trace_printk("%d: not a valid vcpu_id\n", vcpu_id);
-		return -EINVAL;		
+		return -EINVAL;
 	}
 	// pid
 	trace_printk("pid: %ld\n", (long)pid_nr(vcpu->pid));
 	// gp_regs
-	trace_printk("gp_regs:\n\
-		VCPU_REGS_RAX = %lu\n\
-		VCPU_REGS_RCX = %lu\n\
-		VCPU_REGS_RDX = %lu\n\
-		VCPU_REGS_RBX = %lu\n\
-		VCPU_REGS_RSP = %lu\n\
-		VCPU_REGS_RBP = %lu\n\
-		VCPU_REGS_RSI = %lu\n\
-		VCPU_REGS_RDI = %lu\n\
-		VCPU_REGS_R8 = %lu\n\
-		VCPU_REGS_R9 = %lu\n\
-		VCPU_REGS_R10 = %lu\n\
-		VCPU_REGS_R11 = %lu\n\
-		VCPU_REGS_R12 = %lu\n\
-		VCPU_REGS_R13 = %lu\n\
-		VCPU_REGS_R14 = %lu\n\
-		VCPU_REGS_R15 = %lu\n",\
-		kvm_register_read(vcpu, VCPU_REGS_RAX),\
-		kvm_register_read(vcpu, VCPU_REGS_RCX),\
-		kvm_register_read(vcpu, VCPU_REGS_RDX),\
-		kvm_register_read(vcpu, VCPU_REGS_RBX),\
-		kvm_register_read(vcpu, VCPU_REGS_RSP),\
-		kvm_register_read(vcpu, VCPU_REGS_RBP),\
-		kvm_register_read(vcpu, VCPU_REGS_RSI),\
-		kvm_register_read(vcpu, VCPU_REGS_RDI),\
-		kvm_register_read(vcpu, VCPU_REGS_R8),\
-		kvm_register_read(vcpu, VCPU_REGS_R9),\
-		kvm_register_read(vcpu, VCPU_REGS_R10),\
-		kvm_register_read(vcpu, VCPU_REGS_R11),\
-		kvm_register_read(vcpu, VCPU_REGS_R12),\
-		kvm_register_read(vcpu, VCPU_REGS_R13),\
-		kvm_register_read(vcpu, VCPU_REGS_R14),\
+	trace_printk("gp_regs:\n"
+		"VCPU_REGS_RAX = %lu\n"
+		"VCPU_REGS_RCX = %lu\n"
+		"VCPU_REGS_RDX = %lu\n"
+		"VCPU_REGS_RBX = %lu\n"
+		"VCPU_REGS_RSP = %lu\n"
+		"VCPU_REGS_RBP = %lu\n"
+		"VCPU_REGS_RSI = %lu\n"
+		"VCPU_REGS_RDI = %lu\n"
+		"VCPU_REGS_R8 = %lu\n"
+		"VCPU_REGS_R9 = %lu\n"
+		"VCPU_REGS_R10 = %lu\n"
+		"VCPU_REGS_R11 = %lu\n"
+		"VCPU_REGS_R12 = %lu\n"
+		"VCPU_REGS_R13 = %lu\n"
+		"VCPU_REGS_R14 = %lu\n"
+		"VCPU_REGS_R15 = %lu\n",
+		kvm_register_read(vcpu, VCPU_REGS_RAX),
+		kvm_register_read(vcpu, VCPU_REGS_RCX),
+		kvm_register_read(vcpu, VCPU_REGS_RDX),
+		kvm_register_read(vcpu, VCPU_REGS_RBX),
+		kvm_register_read(vcpu, VCPU_REGS_RSP),
+		kvm_register_read(vcpu, VCPU_REGS_RBP),
+		kvm_register_read(vcpu, VCPU_REGS_RSI),
+		kvm_register_read(vcpu, VCPU_REGS_RDI),
+		kvm_register_read(vcpu, VCPU_REGS_R8),
+		kvm_register_read(vcpu, VCPU_REGS_R9),
+		kvm_register_read(vcpu, VCPU_REGS_R10),
+		kvm_register_read(vcpu, VCPU_REGS_R11),
+		kvm_register_read(vcpu, VCPU_REGS_R12),
+		kvm_register_read(vcpu, VCPU_REGS_R13),
+		kvm_register_read(vcpu, VCPU_REGS_R14),
 		kvm_register_read(vcpu, VCPU_REGS_R15));
 	// num_exits
 	trace_printk("num_exits: %llu\n", (vcpu->stat).exits);
@@ -6176,9 +6176,8 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
 
 	r = kvm_skip_emulated_instruction(vcpu);
 
-	if (kvm_hv_hypercall_enabled(vcpu->kvm)) {
+	if (kvm_hv_hypercall_enabled(vcpu->kvm))
 		return kvm_hv_hypercall(vcpu);
-	}
 
 	nr = kvm_register_read(vcpu, VCPU_REGS_RAX);
 	a0 = kvm_register_read(vcpu, VCPU_REGS_RBX);
